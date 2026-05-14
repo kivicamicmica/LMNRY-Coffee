@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LMNRY Coffee Master</title>
+    <style>
+        :root {
+            --coffee-dark: #3E2723;
+            --coffee-medium: #5D4037;
+            --coffee-light: #D7CCC8;
+            --crema: #EFEBE9;
+            --correct-green: #4CAF50;
+            --wrong-red: #F44336;
+            --accent: #FF9800;
+            --blue-level: #2196F3;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--coffee-light);
+            color: var(--coffee-dark);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+
+        h1 {
+            color: var(--coffee-dark);
+            margin-bottom: 5px;
+            text-align: center;
+        }
+        
+        .subtitle {
+            margin-top: 0;
+            margin-bottom: 30px;
+            color: var(--coffee-medium);
+            font-style: italic;
+            text-align: center;
+        }
+
+        /* Generic Panel Style */
+        .panel {
+            background-color: var(--crema);
+            padding: 30px 40px;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+            border: 4px solid var(--coffee-medium);
+            width: 100%;
+            max-width: 550px;
+            box-sizing: border-box;
+            text-align: center;
+        }
+
+        /* Menus */
+        .btn-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            margin-top: 20px;
+        }
+
+        .menu-btn {
+            background-color: var(--coffee-medium);
+            color: white;
+            font-size: 1.1rem;
+            padding: 15px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.1s;
+        }
+
+        .menu-btn:hover { background-color: var(--coffee-dark); }
+        .menu-btn:active { transform: scale(0.98); }
+        
+        .sub-text {
+            display: block;
+            font-size: 0.85rem;
+            font-weight: normal;
+            margin-top: 5px;
+            color: #ddd;
+        }
+
+        /* Badges */
+        .badge-container {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .badge {
+            color: white;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+        }
+
+        .badge-module { background-color: var(--accent); }
+        .badge-level { background-color: var(--blue-level); }
+        .badge-timer { background-color: var(--wrong-red); display: flex; align-items: center; gap: 5px;}
+        .timer-warning { animation: pulse 1s infinite; }
+
+        @keyframes pulse {
+            0% { transform: scale(1); opacity: 1; }
+            50% { transform: scale(1.05); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+        }
+
+        /* Game Area Specifics */
+        .question-box {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 25px;
+            text-align: left;
+            line-height: 1.4;
+        }
+
+        .options-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .option-btn {
+            background-color: white;
+            color: var(--coffee-dark);
+            border: 2px solid var(--coffee-medium);
+            padding: 12px 15px;
+            font-size: 1rem;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            transition: all 0.2s;
+        }
+
+        .option-btn:hover:not(:disabled) {
+            background-color: var(--coffee-light);
+        }
+
+        .option-letter {
+            background-color: var(--coffee-medium);
+            color: white;
+            font-weight: bold;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            margin-right: 15px;
+            flex-shrink: 0;
+        }
+
+        /* Option States */
+        .option-btn:disabled { cursor: not-allowed; opacity: 0.7; }
+        
+        .option-btn.correct {
+            background-color: var(--correct-green);
+            color: white;
+            border-color: var(--correct-green);
+        }
+        .option-btn.correct .option-letter { background-color: white; color: var(--correct-green); }
+
+        .option-btn.wrong {
+            background-color: var(--wrong-red);
+            color: white;
+            border-color: var(--wrong-red);
+        }
+        .option-btn.wrong .option-letter { background-color: white; color: var(--wrong-red); }
+
+        /* Bottom Game Controls */
+        .game-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 20px;
+            border-top: 2px solid var(--coffee-light);
+            padding-top: 15px;
+        }
+
+        .status-text {
+            font-size: 1rem;
+            font-weight: bold;
+        }
+
+        .action-btn {
+            background-color: var(--coffee-dark);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .action-btn:hover { background-color: var(--coffee-medium); }
+
+        .nav-btn {
+            background-color: transparent;
+            color: var(--coffee-dark);
+            border: 2px solid var(--coffee-dark);
+            margin-top: 15px;
+            padding: 10px 20px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        .nav-btn:hover { background-color: var(--coffee-light); }
+
+        /* Utility */
+        .hidden { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <h1>☕ Luminary Coffee Master</h1>
+    <p class="subtitle" id="main-subtitle">Choose your challenge</p>
+
+    <!-- Master Game Mode Selection Screen -->
+    <div id="mode-screen" class="panel">
+        <h2>Select Game Mode</h2>
+        <div class="btn-grid">
+            <button class="menu-btn" onclick="showModuleMenu()">
+                <strong>Practice Mode 📚</strong>
+                <span class="sub-text">10 Questions by Module & Level</span>
+            </button>
+            <button class="menu-btn" style="background-color: var(--accent);" onclick="startExamMode()">
+                <strong>Exam Simulator ⏱️</strong>
+                <span class="sub-text">60 Mixed Questions • Progressive Difficulty • 30 Min</span>
+            </button>
+        </div>
+    </div>
+
+    <!-- Module Selection Screen (Practice Mode) -->
+    <div id="module-screen" class="panel hidden">
+        <h2>Select a Module</h2>
+        <div class="btn-grid">
+            <button class="menu-btn" onclick="selectModule('barista')">Barista Skills</button>
+            <button class="menu-btn" onclick="selectModule('brewing')">Brewing</button>
+            <button class="menu-btn" onclick="selectModule('roasting')">Roasting</button>
+            <button class="menu-btn" onclick="selectModule('green')">Green Coffee</button>
+            <button class="menu-btn" onclick="selectModule('sensory')">Sensory Skills</button>
+        </div>
+        <button class="nav-btn" onclick="showModeMenu()">← Back to Modes</button>
+    </div>
+
+    <!-- Level Selection Screen (Practice Mode) -->
+    <div id="level-screen" class="panel hidden">
+        <h2 id="level-module-title">Module</h2>
+        <p>Choose your difficulty level</p>
+        <div class="btn-grid">
+            <button class="menu-btn" onclick="startPracticeGame('foundation')">Foundation</button>
+            <button class="menu-btn" onclick="startPracticeGame('intermediate')">Intermediate</button>
+            <button class="menu-btn" onclick="startPracticeGame('professional')">Professional</button>
+        </div>
+        <button class="nav-btn" onclick="showModuleMenu()">← Back to Modules</button>
+    </div>
+
+    <!-- Game Area -->
+    <div id="game-area" class="panel hidden">
+        <div class="badge-container">
+            <div class="badge badge-module" id="badge-module">Module</div>
+            <div class="badge badge-level" id="badge-level">Level</div>
+            <div class="badge badge-timer hidden" id="badge-timer">⏱️ <span id="timer-text">30:00</span></div>
+        </div>
+        
+        <div class="question-box" id="question-text">
+            <!-- Question appears here -->
+        </div>
+
+        <div class="options-grid">
+            <button class="option-btn" id="btn-a" onclick="checkAnswer('a')">
+                <div class="option-letter">A</div> <span id="text-a">Option A</span>
+            </button>
+            <button class="option-btn" id="btn-b" onclick="checkAnswer('b')">
+                <div class="option-letter">B</div> <span id="text-b">Option B</span>
+            </button>
+            <button class="option-btn" id="btn-c" onclick="checkAnswer('c')">
+                <div class="option-letter">C</div> <span id="text-c">Option C</span>
+            </button>
+            <button class="option-btn" id="btn-d" onclick="checkAnswer('d')">
+                <div class="option-letter">D</div> <span id="text-d">Option D</span>
+            </button>
+        </div>
+
+        <div class="game-footer">
+            <div class="status-text" id="status">Q: 1/10 | Score: 0</div>
+            <button class="action-btn hidden" id="next-btn" onclick="nextQuestion()">Next Question ➔</button>
+        </div>
+
+        <button class="nav-btn" style="width: 100%; margin-top: 25px; border-color: var(--wrong-red); color: var(--wrong-red);" onclick="showModeMenu()">Exit Quiz 🚪</button>
+    </div>
+
+    <!-- Victory Screen -->
+    <div id="victory-screen" class="panel hidden">
+        <h2 id="victory-title">Quiz Complete! 🎉</h2>
+        <p id="victory-message">Your Final Score:</p>
+        <p><strong id="final-score" style="font-size: 2.5rem;">0 / 0</strong></p>
+        <div class="btn-grid" id="victory-controls">
+            <!-- Buttons injected by JS based on mode -->
+        </div>
+    </div>
+
+    <script>
+        const coffeeDatabase = {
+            barista: {
+                title: "Barista Skills",
+                levels: {
+                    foundation: [
+                        { q: "What is the primary purpose of tamping espresso?", options: { a: "To heat the portafilter", b: "To remove air pockets and create a level bed of resistance", c: "To extract more caffeine", d: "To speed up the water flow" }, answer: "b" },
+                        { q: "What is the ideal temperature range for steaming milk?", options: { a: "40°C - 50°C", b: "55°C - 65°C", c: "75°C - 85°C", d: "90°C - 100°C" }, answer: "b" },
+                        { q: "What is the 'dose' in espresso making?", options: { a: "The volume of the final liquid", b: "The weight of dry coffee grounds used", c: "The amount of milk added", d: "The time it takes to extract" }, answer: "b" },
+                        { q: "What defines an espresso 'yield'?", options: { a: "The weight of the dry grounds", b: "The temperature of the water", c: "The weight of the liquid espresso in the cup", d: "The amount of crema on top" }, answer: "c" },
+                        { q: "What is 'purging' the steam wand?", options: { a: "Wiping it with a cloth", b: "Releasing steam before and after use to clear residue", c: "Soaking it in chemicals overnight", d: "Using it to heat the ceramic cup" }, answer: "b" },
+                        { q: "What is the standard pump pressure for an espresso machine?", options: { a: "3 bars", b: "6 bars", c: "9 bars", d: "15 bars" }, answer: "c" },
+                        { q: "Which tool is used to compress the coffee grounds in the portafilter?", options: { a: "Distribution tool", b: "Tamper", c: "Pitcher", d: "Knock box" }, answer: "b" },
+                        { q: "What is the name of the bin where you dispose of the used espresso puck?", options: { a: "Hopper", b: "Drip tray", c: "Knock box", d: "Group head" }, answer: "c" },
+                        { q: "What happens if you leave brewed espresso sitting for a long time?", options: { a: "It gets sweeter", b: "The crema dissipates and it becomes bitter", c: "It increases in caffeine", d: "It turns into cold brew" }, answer: "b" },
+                        { q: "A traditional standard ratio for espresso is:", options: { a: "1:1", b: "1:2", c: "1:5", d: "1:15" }, answer: "b" }
+                    ],
+                    intermediate: [
+                        { q: "What happens to the espresso flow rate if you adjust the grinder to make the particles finer?", options: { a: "The flow rate will increase", b: "The flow rate will decrease", c: "The flow rate stays exactly the same", d: "The espresso will immediately channel" }, answer: "b" },
+                        { q: "Which milk component is primarily responsible for creating stable microfoam?", options: { a: "Lactose", b: "Butterfat", c: "Proteins (Whey and Casein)", d: "Calcium" }, answer: "c" },
+                        { q: "What causes 'channeling' during espresso extraction?", options: { a: "Water too cold", b: "Uneven distribution or tamping", c: "Dark roasted beans", d: "Too much pump pressure" }, answer: "b" },
+                        { q: "What is the purpose of WDT (Weiss Distribution Technique)?", options: { a: "To measure espresso yield", b: "To break up clumps and distribute grounds evenly", c: "To steam milk perfectly", d: "To clean the group head" }, answer: "b" },
+                        { q: "What happens when you 'over-aerate' milk?", options: { a: "It gets too hot", b: "It loses its sweetness", c: "It produces large, stiff, dry bubbles", d: "It separates into water and fat" }, answer: "c" },
+                        { q: "Which compound contributes most to the sweetness of steamed milk?", options: { a: "Sucrose", b: "Fructose", c: "Lactose", d: "Glucose" }, answer: "c" },
+                        { q: "If your espresso extracts in 10 seconds and tastes extremely sour, it is:", options: { a: "Over-extracted", b: "Under-extracted", c: "Perfect", d: "Burnt" }, answer: "b" },
+                        { q: "What is a 'Ristretto'?", options: { a: "A longer, more diluted espresso shot", b: "A restricted, shorter espresso shot using less water", c: "An espresso mixed with cream", d: "A decaf espresso" }, answer: "b" },
+                        { q: "In milk texturing, what is the 'vortex' phase for?", options: { a: "Introducing large amounts of air", b: "Breaking down bubbles to create smooth microfoam", c: "Cooling the milk down", d: "Burning the proteins" }, answer: "b" },
+                        { q: "Why is water filtration critical for an espresso machine?", options: { a: "To make the water look clearer", b: "To prevent scale buildup and ensure proper extraction flavor", c: "To increase the water pressure", d: "To chill the water" }, answer: "b" }
+                    ],
+                    professional: [
+                        { q: "According to SCA standards, what is the target TDS range for espresso?", options: { a: "1.15% - 1.45%", b: "4.0% - 6.0%", c: "7.0% - 12.0%", d: "18.0% - 22.0%" }, answer: "c" },
+                        { q: "When calculating extraction yield, which formula is correct?", options: { a: "(Brewed Coffee Weight x TDS) / Dose Weight", b: "(Dose Weight x TDS) / Brewed Coffee Weight", c: "Dose Weight / Brew Water Weight", d: "TDS / Refractive Index" }, answer: "a" },
+                        { q: "What is 'Pre-infusion'?", options: { a: "Soaking beans in water before roasting", b: "Applying low-pressure water to the coffee puck before full pump pressure", c: "Heating the cup before serving", d: "Grinding the coffee hours in advance" }, answer: "b" },
+                        { q: "At what temperature do milk proteins begin to denature significantly, causing a burnt taste?", options: { a: "60°C", b: "70°C+", c: "50°C", d: "85°C+" }, answer: "b" },
+                        { q: "How does 'Headspace' affect extraction?", options: { a: "It has no effect", b: "Too much leads to soupy pucks, too little causes channeling and poor pre-infusion", c: "It only changes the crema color", d: "It changes the caffeine content" }, answer: "b" },
+                        { q: "What is the typical ideal extraction yield percentage range for specialty espresso?", options: { a: "10% - 15%", b: "18% - 22%", c: "25% - 30%", d: "50% - 60%" }, answer: "b" },
+                        { q: "Which burr geometry typically produces a more unimodal grind distribution?", options: { a: "Small conical burrs", b: "Large flat burrs", c: "Blade grinders", d: "Crusher rollers" }, answer: "b" },
+                        { q: "How does water temperature affect the solubility of coffee compounds?", options: { a: "Higher temps decrease solubility", b: "Higher temps increase solubility, extracting compounds faster", c: "Temperature has no effect", d: "It only affects roast color" }, answer: "b" },
+                        { q: "What is the primary role of the Expansion Valve (OPV)?", options: { a: "To steam the milk", b: "To regulate the maximum brew pressure reaching the group head", c: "To drain the drip tray", d: "To heat the boiler" }, answer: "b" },
+                        { q: "What does a refractometer actually measure to determine TDS?", options: { a: "The weight of the liquid", b: "The angle of light refraction as it passes through the liquid", c: "The electrical conductivity", d: "The pH balance" }, answer: "b" }
+                    ]
+                }
+            },
+            brewing: {
+                title: "Brewing",
+                levels: {
+                    foundation: [
+                        { q: "What is the standard SCA golden ratio for brewing filter coffee?", options: { a: "30g per Liter", b: "55g per Liter", c: "75g per Liter", d: "100g per Liter" }, answer: "b" },
+                        { q: "Why do we 'bloom' coffee at the start of a pour-over?", options: { a: "To wash away paper filter taste", b: "To release trapped carbon dioxide gas", c: "To cool the water down", d: "To make the coffee look pretty" }, answer: "b" },
+                        { q: "Which brewing method is considered an 'immersion' brewer?", options: { a: "V60", b: "Chemex", c: "French Press", d: "Espresso" }, answer: "c" },
+                        { q: "Why is it important to rinse a paper filter before brewing?", options: { a: "To make it stronger", b: "To remove papery taste and pre-heat the brewer", c: "To slow down extraction", d: "To increase caffeine" }, answer: "b" },
+                        { q: "What type of grinder is recommended for the most even extraction?", options: { a: "Blade grinder", b: "Burr grinder", c: "Mortar and pestle", d: "Spice blender" }, answer: "b" },
+                        { q: "What happens if you use boiling water (100°C) directly off the boil?", options: { a: "It extracts perfectly", b: "It can over-extract bitter compounds", c: "It cools down immediately", d: "It removes all the caffeine" }, answer: "b" },
+                        { q: "What is 'agitation' in coffee brewing?", options: { a: "Stirring or swirling the coffee slurry", b: "The noise the grinder makes", c: "Leaving the coffee alone", d: "Drinking it too fast" }, answer: "a" },
+                        { q: "If your brew time is way too fast, what should you do to the grind size?", options: { a: "Make it coarser", b: "Make it finer", c: "Leave it the same", d: "Change the roast" }, answer: "b" },
+                        { q: "What is the 'slurry'?", options: { a: "The leftover dry beans", b: "The mixture of coffee grounds and water during brewing", c: "The finished cup of coffee", d: "The paper filter" }, answer: "b" },
+                        { q: "Which of the following is a percolation brewing method?", options: { a: "French Press", b: "Aeropress (Standard)", c: "Kalita Wave", d: "Cupping" }, answer: "c" }
+                    ],
+                    intermediate: [
+                        { q: "If a filter coffee tastes overwhelmingly sour and salty, it is likely:", options: { a: "Over-extracted", b: "Under-extracted", c: "Perfectly extracted", d: "Roasted too dark" }, answer: "b" },
+                        { q: "Which water temperature range is recommended by the SCA for brewing coffee?", options: { a: "80°C - 85°C", b: "88°C - 90°C", c: "90.5°C - 96°C", d: "98°C - 100°C" }, answer: "c" },
+                        { q: "What happens if your grind size is too fine for a V60?", options: { a: "Water drains too fast", b: "The brew stalls, leading to over-extraction and bitterness", c: "The coffee gets sour", d: "It becomes an immersion brew" }, answer: "b" },
+                        { q: "What does 'TDS' stand for?", options: { a: "Total Dissolved Solids", b: "Total Dialed Shots", c: "Time Dependent Steeping", d: "Temperature Decreased Slowly" }, answer: "a" },
+                        { q: "In the context of extraction, which compounds dissolve first?", options: { a: "Heavy, bitter compounds", b: "Fruity acids and light aromatics", c: "Sugars and sweetness", d: "Lipids and fats" }, answer: "b" },
+                        { q: "What effect does highly hard water have on coffee flavor?", options: { a: "Makes it extremely sour", b: "Can mute acidity and make coffee taste flat/chalky", c: "Makes it overly sweet", d: "Increases caffeine content" }, answer: "b" },
+                        { q: "How does increasing the dose (coffee) while keeping water volume the same affect the brew?", options: { a: "Increases strength (TDS) but likely lowers extraction yield", b: "Decreases strength", c: "Increases both strength and yield", d: "Has no effect" }, answer: "a" },
+                        { q: "What is the 'golden cup' standard for extraction yield?", options: { a: "10% - 15%", b: "18% - 22%", c: "25% - 30%", d: "50% - 60%" }, answer: "b" },
+                        { q: "What is 'channeling' in filter brewing?", options: { a: "Water flowing evenly", b: "Water finding a single path of least resistance, causing localized over-extraction", c: "Water bypassing the filter", d: "Stirring the bloom" }, answer: "b" },
+                        { q: "If a brew is both too strong and too bitter, what is the best adjustment?", options: { a: "Grind finer and use more coffee", b: "Grind coarser and use less coffee (widen ratio)", c: "Increase water temp", d: "Agitate more" }, answer: "b" }
+                    ],
+                    professional: [
+                        { q: "What is 'bypass' in the context of filter brewing?", options: { a: "Skipping the bloom", b: "Water passing through the filter without extracting from the coffee bed", c: "Using a metal filter", d: "Diluting the brew with cold water" }, answer: "b" },
+                        { q: "What does total alkalinity primarily buffer in brewing water?", options: { a: "Acidity", b: "Bitterness", c: "Caffeine", d: "TDS" }, answer: "a" },
+                        { q: "According to SCA water standards, what is the target for Total Hardness?", options: { a: "0 ppm", b: "50-175 ppm", c: "250-300 ppm", d: "500+ ppm" }, answer: "b" },
+                        { q: "How does a highly bimodal grind distribution affect a pour-over brew?", options: { a: "It ensures perfect evenness", b: "Fines can over-extract and clog the filter, while boulders under-extract", c: "It increases acidity", d: "It speeds up the draw-down" }, answer: "b" },
+                        { q: "When using a refractometer, why must the sample be filtered and cooled?", options: { a: "To increase the TDS reading", b: "To ensure suspended particles and temperature don't skew the light refraction", c: "To make it taste better", d: "To calibrate the machine" }, answer: "b" },
+                        { q: "What is the formula for calculating Extraction Yield?", options: { a: "(Brew Weight x TDS%) / Dose Weight", b: "Dose / Brew Weight", c: "TDS% x Dose", d: "Water Volume / Dose" }, answer: "a" },
+                        { q: "If your TDS is 1.35% and your Extraction Yield is 24%, the coffee is likely:", options: { a: "Under-developed", b: "Under-extracted", c: "Over-extracted", d: "Perfectly extracted" }, answer: "c" },
+                        { q: "What is the relationship between roasting level and solubility?", options: { a: "Darker roasts are more soluble and extract faster", b: "Lighter roasts are more soluble", c: "Roast level does not affect solubility", d: "Dark roasts cannot be extracted" }, answer: "a" },
+                        { q: "What is the impact of high magnesium content in brewing water?", options: { a: "It causes corrosion", b: "It is highly effective at extracting fruit and acid-driven flavor compounds", c: "It mutes all flavors", d: "It turns the coffee green" }, answer: "b" },
+                        { q: "In batch brewing, what is the purpose of a pulse-brew setting?", options: { a: "To save electricity", b: "To maintain an even slurry temperature and control drawdown time", c: "To bypass the coffee", d: "To clean the machine" }, answer: "b" }
+                    ]
+                }
+            },
+            roasting: {
+                title: "Roasting",
+                levels: {
+                    foundation: [
+                        { q: "What color do green coffee beans turn during the early stages of roasting?", options: { a: "Black", b: "Yellow", c: "Red", d: "White" }, answer: "b" },
+                        { q: "What is 'First Crack'?", options: { a: "Dropping the roaster", b: "The audible sound of beans releasing water vapor pressure", c: "The point where the beans burn", d: "Breaking a bean in half" }, answer: "b" },
+                        { q: "What is the purpose of the cooling tray?", options: { a: "To wash the beans", b: "To rapidly stop the roasting process so beans don't bake/burn", c: "To remove caffeine", d: "To separate stones" }, answer: "b" },
+                        { q: "What is the 'Charge' temperature?", options: { a: "The temp when the roast ends", b: "The temperature of the empty drum right before adding green coffee", c: "The temp of first crack", d: "The temp of the cooling tray" }, answer: "b" },
+                        { q: "What is 'Chaff'?", options: { a: "Defective beans", b: "The silverskin of the bean that flakes off during roasting", c: "Smoke from the roaster", d: "Unroasted coffee" }, answer: "b" },
+                        { q: "What physical change happens to the bean during roasting?", options: { a: "Shrinks and gets heavier", b: "Expands in size and loses weight (moisture loss)", c: "Turns into a liquid", d: "Absorbs water" }, answer: "b" },
+                        { q: "What does 'Drop' refer to in roasting?", options: { a: "Dropping beans on the floor", b: "Discharging the roasted coffee from the drum into the cooling tray", c: "A drop in gas pressure", d: "First crack" }, answer: "b" },
+                        { q: "Which of these is a light roast style?", options: { a: "French Roast", b: "Cinnamon Roast", c: "Vienna Roast", d: "Italian Roast" }, answer: "b" },
+                        { q: "What happens during 'Second Crack'?", options: { a: "Water vapor releases", b: "The bean structure fractures as oils and CO2 migrate to the surface", c: "Beans turn yellow", d: "Beans lose all caffeine" }, answer: "b" },
+                        { q: "How should roasted coffee be stored?", options: { a: "In the fridge", b: "In a cool, dark, airtight container", c: "In direct sunlight", d: "In an open bowl" }, answer: "b" }
+                    ],
+                    intermediate: [
+                        { q: "What is 'Development Time'?", options: { a: "Time from dropping green beans to yellowing", b: "Time from First Crack to the end of the roast", c: "Total roast time", d: "Cooling time" }, answer: "b" },
+                        { q: "Which chemical reaction is responsible for browning and flavor complexity?", options: { a: "Photosynthesis", b: "Oxidation", c: "Maillard Reaction", d: "Fermentation" }, answer: "c" },
+                        { q: "What is 'Rate of Rise' (RoR)?", options: { a: "The speed the drum spins", b: "The rate at which the bean temperature increases over time", c: "The expansion size of the bean", d: "The amount of smoke produced" }, answer: "b" },
+                        { q: "Caramelization in coffee roasting primarily affects:", options: { a: "Proteins", b: "Lipids", c: "Sugars", d: "Caffeine" }, answer: "c" },
+                        { q: "Which type of heat transfer involves hot air passing through the beans?", options: { a: "Convection", b: "Conduction", c: "Radiation", d: "Induction" }, answer: "a" },
+                        { q: "What causes a 'baked' flavor defect in roasting?", options: { a: "Roasting too fast", b: "A severe crash or stall in the Rate of Rise (RoR)", c: "Too much airflow", d: "Roasting to second crack" }, answer: "b" },
+                        { q: "What defect occurs if drum temperature is too hot when beans are introduced?", options: { a: "Quakers", b: "Scorching / Tipping", c: "Baked coffee", d: "Under-development" }, answer: "b" },
+                        { q: "What is the 'Turning Point'?", options: { a: "First crack", b: "When the thermocouple temp stops dropping and begins to rise after charging beans", c: "Dropping into the cooling tray", d: "When color turns yellow" }, answer: "b" },
+                        { q: "What is the typical weight loss percentage of coffee during roasting?", options: { a: "1-5%", b: "12-20%", c: "30-40%", d: "50-60%" }, answer: "b" },
+                        { q: "Why is airflow increased towards the end of a roast?", options: { a: "To make it hotter", b: "To clear out smoke and chaff to prevent smoky flavors", c: "To stop first crack", d: "To increase moisture" }, answer: "b" }
+                    ],
+                    professional: [
+                        { q: "What is an endothermic phase in roasting?", options: { a: "Beans are absorbing heat from the environment", b: "Beans are releasing heat into the environment", c: "The cooling tray phase", d: "When the gas is turned off" }, answer: "a" },
+                        { q: "At what temperature does the Maillard reaction typically accelerate?", options: { a: "100°C", b: "150°C", c: "200°C", d: "250°C" }, answer: "b" },
+                        { q: "What causes the 'crash' in RoR often seen around First Crack?", options: { a: "Turning off the gas", b: "The sudden release of water vapor creating an endothermic cooling effect", c: "Airflow being too high", d: "The beans shrinking" }, answer: "b" },
+                        { q: "How does batch size affect thermal momentum?", options: { a: "It doesn't", b: "Larger batches have more thermal mass and respond slower to gas changes", c: "Smaller batches respond slower", d: "Larger batches cool faster" }, answer: "b" },
+                        { q: "What is 'Glass Transition' in roasting?", options: { a: "The window on the roaster breaking", b: "The phase where the bean changes from a hard, glassy state to a rubbery, pliable state", c: "The cooling process", d: "The formation of oils" }, answer: "b" },
+                        { q: "What dictates the proportion of conductive vs convective heat in a standard drum roaster?", options: { a: "The color of the roaster", b: "Drum speed, airflow volume, and burner design", c: "The size of the cooling tray", d: "The ambient room temperature" }, answer: "b" },
+                        { q: "If a coffee is tasting 'hollow' or 'grassy' but the outside looks dark, what happened?", options: { a: "It was baked", b: "Too high heat too fast caused severe under-development of the bean interior", c: "It was roasted too slow", d: "Too much airflow" }, answer: "b" },
+                        { q: "What chemical compound is a primary driver of perceived bitterness in dark roasts?", options: { a: "Citric acid", b: "Chlorogenic Acid Lactones / Phenylindanes", c: "Sucrose", d: "Malic acid" }, answer: "b" },
+                        { q: "What is the difference between a thermocouple and an RTD probe?", options: { a: "Thermocouples are slower", b: "RTDs measure air, thermocouples measure beans", c: "RTDs offer higher accuracy and stability, thermocouples offer faster response times", d: "There is no difference" }, answer: "c" },
+                        { q: "How does high ambient humidity affect a roast?", options: { a: "It makes it roast twice as fast", b: "Moist air has a higher specific heat capacity, transferring heat more efficiently than dry air", c: "It puts out the burner", d: "It causes scorching" }, answer: "b" }
+                    ]
+                }
+            },
+            green: {
+                title: "Green Coffee",
+                levels: {
+                    foundation: [
+                        { q: "What are the two most commercially cultivated species of coffee?", options: { a: "Typica and Bourbon", b: "Arabica and Robusta", c: "Liberica and Excelsa", d: "Caturra and Gesha" }, answer: "b" },
+                        { q: "Which processing method removes the skin and mucilage before drying?", options: { a: "Natural Process", b: "Honey Process", c: "Washed Process", d: "Anaerobic Process" }, answer: "c" },
+                        { q: "What is the anatomy term for the 'skin' of the coffee cherry?", options: { a: "Endosperm", b: "Mesocarp", c: "Exocarp", d: "Parchment" }, answer: "c" },
+                        { q: "In the Natural (Dry) process, how are the cherries dried?", options: { a: "Fully intact with the fruit still on the seed", b: "With skin removed but mucilage on", c: "Completely washed of all fruit", d: "Freeze-dried" }, answer: "a" },
+                        { q: "Which region is known as the genetic birthplace of Coffea Arabica?", options: { a: "Brazil", b: "Colombia", c: "Ethiopia", d: "Indonesia" }, answer: "c" },
+                        { q: "What is a 'Peaberry'?", options: { a: "A genetic mutation causing one round seed to form instead of two flat ones", b: "A coffee cherry the size of a pea", c: "A bean flavored with peas", d: "A defect caused by drought" }, answer: "a" },
+                        { q: "What color is fresh, healthy green coffee usually?", options: { a: "Brown", b: "Pale white", c: "Blueish-green to grey-green", d: "Black" }, answer: "c" },
+                        { q: "What is the 'Parchment'?", options: { a: "The red skin", b: "The sweet sticky layer", c: "The papery hull surrounding the seed", d: "The green seed itself" }, answer: "c" },
+                        { q: "What is the primary flavor difference typically noted between Washed and Natural coffees?", options: { a: "Washed is heavy/fruity, Natural is clean/acidic", b: "Washed is clean/acidic, Natural is heavier/fruitier", c: "They taste identical", d: "Natural tastes like water" }, answer: "b" },
+                        { q: "What is the purpose of 'milling' green coffee?", options: { a: "To grind it", b: "To remove the parchment layer and sort the beans before export", c: "To roast it", d: "To wash it" }, answer: "b" }
+                    ],
+                    intermediate: [
+                        { q: "What is the standard ideal moisture content for shipping green specialty coffee?", options: { a: "5% - 8%", b: "10% - 12%", c: "14% - 16%", d: "20% - 25%" }, answer: "b" },
+                        { q: "What is a 'Quaker'?", options: { a: "A specific varietal", b: "An unripe bean that fails to roast properly, remaining pale", c: "A farmer from Pennsylvania", d: "A bean damaged by insects" }, answer: "b" },
+                        { q: "What altitude range is generally associated with SHG (Strictly High Grown)?", options: { a: "Sea level to 500m", b: "500m to 800m", c: "800m to 1200m", d: "Above 1200m" }, answer: "d" },
+                        { q: "What is 'Decaffeination'?", options: { a: "Roasting beans until caffeine burns off", b: "Removing caffeine from green beans using water or solvents (e.g., Swiss Water)", c: "Growing a plant with no caffeine", d: "Washing the beans with soap" }, answer: "b" },
+                        { q: "What is 'Water Activity' (aw) in green coffee?", options: { a: "How wet the bean feels", b: "A measure of the unbound water available for microbial growth", c: "The amount of water used to wash it", d: "The humidity of the farm" }, answer: "b" },
+                        { q: "What causes a 'Potato Defect' commonly found in Rwanda/Burundi coffees?", options: { a: "Bacteria entering through Antestia bug damage", b: "Storing coffee next to potatoes", c: "Over-fermentation", d: "Roasting too dark" }, answer: "a" },
+                        { q: "What is the 'Honey Process'?", options: { a: "Soaking beans in honey", b: "Skin removed, but mucilage left on during drying", c: "Fully washed beans", d: "Bees pollinating the coffee" }, answer: "b" },
+                        { q: "Which of the following is a direct mutation of the Bourbon varietal?", options: { a: "Typica", b: "Caturra", c: "Gesha", d: "Robusta" }, answer: "b" },
+                        { q: "What screen size is typically associated with a 'Supremo' grade in Colombia?", options: { a: "13/14", b: "15/16", c: "17/18", d: "19/20" }, answer: "c" },
+                        { q: "What is a 'Past Crop'?", options: { a: "Coffee from a previous harvest year, often tasting woody or faded", b: "Coffee grown in a pasture", c: "The very first harvest of a new tree", d: "Coffee that was roasted yesterday" }, answer: "a" }
+                    ],
+                    professional: [
+                        { q: "Which of these is considered a Category 1 (Primary) defect in SCA grading?", options: { a: "Partial sour", b: "Slight insect damage", c: "Full black bean", d: "Broken/chipped bean" }, answer: "c" },
+                        { q: "How many chromosomes does Coffea Arabica have?", options: { a: "22", b: "44", c: "66", d: "88" }, answer: "b" },
+                        { q: "What is the genetic relationship between Typica and Bourbon?", options: { a: "They are unrelated species", b: "They are the two distinct main evolutionary branches of Arabica leaving Ethiopia", c: "Bourbon is a hybrid of Typica and Robusta", d: "Typica is a mutation of Catuai" }, answer: "b" },
+                        { q: "According to SCA protocol, how large is a standard green grading sample?", options: { a: "100 grams", b: "350 grams", c: "500 grams", d: "1 kilogram" }, answer: "b" },
+                        { q: "What causes the 'Rioy' defect?", options: { a: "A specific microbe producing trichloroanisole (TCA), giving a medicinal/iodine taste", b: "Shipping coffee through Rio de Janeiro", c: "Under-drying the coffee", d: "Over-roasting" }, answer: "a" },
+                        { q: "What is the 'C-Market'?", options: { a: "The supermarket", b: "The global commodities exchange where Arabica futures contracts are traded", c: "The specialty coffee association", d: "The carbon footprint market" }, answer: "b" },
+                        { q: "What is 'Introgression' in coffee genetics (e.g., in Timor Hybrid)?", options: { a: "The natural crossing of two different species (Arabica and Robusta)", b: "A laboratory gene edit", c: "The rotting of the cherry", d: "A roasting defect" }, answer: "a" },
+                        { q: "What is the primary function of a 'Color Sorter' at a dry mill?", options: { a: "To paint the beans", b: "To use optical sensors to eject defective beans (like black or pale beans) using air jets", c: "To measure moisture", d: "To weigh the bags" }, answer: "b" },
+                        { q: "In anaerobic fermentation processing, what is explicitly controlled/removed?", options: { a: "Water", b: "Oxygen", c: "Sugar", d: "Caffeine" }, answer: "b" },
+                        { q: "What is the standard weight of a burlap sack of green coffee from Colombia or Brazil?", options: { a: "50kg / 60kg", b: "20kg / 30kg", c: "70kg / 69kg", d: "100kg / 150kg" }, answer: "c" }
+                    ]
+                }
+            },
+            sensory: {
+                title: "Sensory Skills",
+                levels: {
+                    foundation: [
+                        { q: "What are the five primary basic tastes?", options: { a: "Sweet, Sour, Salty, Bitter, Umami", b: "Sweet, Spicy, Salty, Bitter, Astringent", c: "Fruity, Nutty, Chocolate, Floral, Spice", d: "Hot, Cold, Texture, Weight, Pain" }, answer: "a" },
+                        { q: "In an SCA cupping, what is the 'Break'?", options: { a: "Dropping a cupping bowl", b: "Piercing the crust of floating grounds to release aromas", c: "A 5-minute pause", d: "When the coffee gets cold" }, answer: "b" },
+                        { q: "What is olfactory perception?", options: { a: "Sense of taste", b: "Sense of touch/mouthfeel", c: "Sense of smell", d: "Sense of sight" }, answer: "c" },
+                        { q: "What does 'Body' refer to in sensory analysis?", options: { a: "The caffeine content", b: "The color of the brew", c: "The tactile sensation of weight and texture in the mouth", d: "The intensity of acidity" }, answer: "c" },
+                        { q: "During cupping, when do you evaluate the 'Fragrance'?", options: { a: "When the coffee is wet", b: "When the coffee is dry, right after grinding", c: "After the break", d: "When it cools down completely" }, answer: "b" },
+                        { q: "What tool is primarily used for slurping coffee during a cupping?", options: { a: "A fork", b: "A cupping spoon", c: "A straw", d: "A demitasse cup" }, answer: "b" },
+                        { q: "Why do tasters 'slurp' coffee aggressively during cupping?", options: { a: "To cool it down and spray it across the palate/olfactory receptors", b: "To be polite", c: "To mix it with saliva", d: "To avoid swallowing" }, answer: "a" },
+                        { q: "What is the standard water-to-coffee ratio for an SCA cupping?", options: { a: "8.25g coffee per 150ml water", b: "10g coffee per 100ml water", c: "15g coffee per 250ml water", d: "20g coffee per 300ml water" }, answer: "a" },
+                        { q: "What is the difference between Fragrance and Aroma?", options: { a: "They are the same", b: "Fragrance is dry coffee; Aroma is wet coffee", c: "Fragrance is taste; Aroma is smell", d: "Fragrance is artificial; Aroma is natural" }, answer: "b" },
+                        { q: "Which part of the tongue perceives bitter tastes?", options: { a: "Only the tip", b: "Only the sides", c: "Only the very back", d: "All parts of the tongue can perceive all basic tastes" }, answer: "d" }
+                    ],
+                    intermediate: [
+                        { q: "What is 'Retronasal' olfaction?", options: { a: "Smelling through the nostrils", b: "Smelling aromas that travel up the back of the throat to the nasal cavity while consuming", c: "Losing your sense of smell", d: "Smelling dry coffee grounds" }, answer: "b" },
+                        { q: "What is the difference between Taste and Flavor?", options: { a: "They are exactly the same", b: "Taste happens in the nose, flavor on the tongue", c: "Taste is basic tongue receptors; Flavor is taste combined with olfaction (smell)", d: "Taste is for food, flavor is for drinks" }, answer: "c" },
+                        { q: "On the SCA Flavor Wheel, which category is considered an 'Enzymatic' flavor?", options: { a: "Roasted", b: "Floral/Fruity", c: "Spicy", d: "Nutty/Cocoa" }, answer: "b" },
+                        { q: "What is 'Astringency'?", options: { a: "A basic taste like sourness", b: "A tactile drying, rough, or puckering sensation in the mouth", c: "The smell of burnt rubber", d: "The sweetness of a natural process coffee" }, answer: "b" },
+                        { q: "What does positive 'Acidity' in coffee contribute?", options: { a: "A sour, vinegar-like taste", b: "Liveliness, brightness, and fruit-like characteristics", c: "A heavy, syrupy mouthfeel", d: "A burnt, ashy aftertaste" }, answer: "b" },
+                        { q: "At what temperature range should flavor and acidity be formally evaluated during an SCA cupping?", options: { a: "90°C - 95°C", b: "70°C - 71°C", c: "60°C - 70°C", d: "Room temperature" }, answer: "c" },
+                        { q: "What is 'Anosmia'?", options: { a: "The ability to taste perfectly", b: "The partial or complete loss of the sense of smell", c: "A type of coffee bean", d: "A roasting defect" }, answer: "b" },
+                        { q: "Which term describes a flavor defect caused by storing green coffee in a humid environment?", options: { a: "Fruity", b: "Musty / Earthy", c: "Caramel", d: "Floral" }, answer: "b" },
+                        { q: "On the SCA Cupping Form, what is the maximum score a coffee can achieve?", options: { a: "10", b: "50", c: "100", d: "1000" }, answer: "c" },
+                        { q: "What is 'Sensory Adaptation' (or Fatigue)?", options: { a: "Getting better at tasting over time", b: "A decrease in sensitivity to a specific stimulus after prolonged exposure", c: "Adding milk to coffee", d: "Changing the room temperature" }, answer: "b" }
+                    ],
+                    professional: [
+                        { q: "What is a 'Triangulation' test?", options: { a: "Measuring extraction yield", b: "Identifying one different cup out of three (two are identical)", c: "Scoring a coffee on three attributes", d: "Tasting three origins at once" }, answer: "b" },
+                        { q: "Which organic acid is associated with green apple or crisp grape acidity?", options: { a: "Citric Acid", b: "Malic Acid", c: "Phosphoric Acid", d: "Acetic Acid" }, answer: "b" },
+                        { q: "Which organic acid is associated with citrus fruits like lemons and oranges?", options: { a: "Citric Acid", b: "Malic Acid", c: "Phosphoric Acid", d: "Lactic Acid" }, answer: "a" },
+                        { q: "What makes Phosphoric Acid unique among primary coffee acids?", options: { a: "It tastes like vinegar", b: "It is an inorganic mineral acid, often perceived as a sparkling/cola-like sensation", c: "It is only found in Robusta", d: "It is added during roasting" }, answer: "b" },
+                        { q: "In sensory science, what is 'Cross-Modal Perception'?", options: { a: "Tasting with your eyes closed", b: "When one sense influences the perception of another (e.g., color influencing expected taste)", c: "Smelling two things at once", d: "A blocked nose" }, answer: "b" },
+                        { q: "What is the purpose of an 'In/Out' test in panel calibration?", options: { a: "Checking if tasters spit or swallow", b: "Determining if a product meets a specific predefined profile or standard (Pass/Fail)", c: "Walking in and out of the room", d: "Weighing the coffee" }, answer: "b" },
+                        { q: "On the SCA cupping form, which attribute is scored horizontally (intensity) rather than vertically (quality)?", options: { a: "Flavor", b: "Acidity (and Body)", c: "Clean Cup", d: "Overall" }, answer: "b" },
+                        { q: "What is the 'Threshold' in sensory evaluation?", options: { a: "The door to the cupping room", b: "The lowest concentration at which a stimulus can be detected or recognized", c: "The maximum score", d: "The boiling point of water" }, answer: "b" },
+                        { q: "During a cupping, what penalty is applied for a 'Taint'?", options: { a: "-1 point", b: "-2 points", c: "-4 points", d: "-0 points" }, answer: "b" },
+                        { q: "What is the chemical cause of the 'Phenolic' defect (tasting like iodine/plastic)?", options: { a: "Over-roasting", b: "Bacteria present in the cherry processing", c: "Under-extracting", d: "Using old water" }, answer: "b" }
+                    ]
+                }
+            }
+        };
+
+// State Variables
+        let currentModuleKey = '';
+        let currentLevelKey = '';
+        let currentQuestions = [];
+        let currentQIndex = 0;
+        let score = 0;
+        let answered = false;
+        let activeQuizLength = 0;
+        
+        // Exam Mode Specifics
+        let isExamMode = false;
+        let timerInterval;
+        let timeRemaining = 1800; // 30 minutes in seconds
+
+        // DOM Elements
+        const screens = {
+            mode: document.getElementById('mode-screen'),
+            module: document.getElementById('module-screen'),
+            level: document.getElementById('level-screen'),
+            game: document.getElementById('game-area'),
+            victory: document.getElementById('victory-screen')
+        };
+        
+        const ui = {
+            levelModuleTitle: document.getElementById('level-module-title'),
+            badgeModule: document.getElementById('badge-module'),
+            badgeLevel: document.getElementById('badge-level'),
+            badgeTimer: document.getElementById('badge-timer'),
+            timerText: document.getElementById('timer-text'),
+            questionText: document.getElementById('question-text'),
+            status: document.getElementById('status'),
+            nextBtn: document.getElementById('next-btn'),
+            victoryTitle: document.getElementById('victory-title'),
+            victoryMessage: document.getElementById('victory-message'),
+            finalScore: document.getElementById('final-score'),
+            victoryControls: document.getElementById('victory-controls'),
+            options: {
+                a: { btn: document.getElementById('btn-a'), text: document.getElementById('text-a') },
+                b: { btn: document.getElementById('btn-b'), text: document.getElementById('text-b') },
+                c: { btn: document.getElementById('btn-c'), text: document.getElementById('text-c') },
+                d: { btn: document.getElementById('btn-d'), text: document.getElementById('text-d') }
+            }
+        };
+
+        // Utilities
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Navigation Functions
+        function hideAllScreens() {
+            Object.values(screens).forEach(screen => screen.classList.add('hidden'));
+            clearInterval(timerInterval); // Always clear timer when navigating
+            ui.badgeTimer.classList.remove('timer-warning');
+        }
+
+        function showModeMenu() {
+            hideAllScreens();
+            screens.mode.classList.remove('hidden');
+        }
+
+        function showModuleMenu() {
+            hideAllScreens();
+            screens.module.classList.remove('hidden');
+        }
+
+        function selectModule(moduleKey) {
+            currentModuleKey = moduleKey;
+            ui.levelModuleTitle.textContent = coffeeDatabase[moduleKey].title;
+            hideAllScreens();
+            screens.level.classList.remove('hidden');
+        }
+
+        function showLevelMenu() {
+            hideAllScreens();
+            screens.level.classList.remove('hidden');
+        }
+
+        // Timer Logic
+        function updateTimerUI() {
+            const minutes = Math.floor(timeRemaining / 60);
+            const seconds = timeRemaining % 60;
+            ui.timerText.textContent = `${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`;
+            
+            if (timeRemaining <= 300) { // Under 5 minutes
+                ui.badgeTimer.classList.add('timer-warning');
+            }
+        }
+
+        function startTimer() {
+            timeRemaining = 1800; // Reset to 30 mins
+            updateTimerUI();
+            ui.badgeTimer.classList.remove('hidden');
+            
+            timerInterval = setInterval(() => {
+                timeRemaining--;
+                updateTimerUI();
+                
+                if (timeRemaining <= 0) {
+                    clearInterval(timerInterval);
+                    showVictory(true); // true flags that time ran out
+                }
+            }, 1000);
+        }
+
+        // Mode 1: Practice Game Flow
+        function startPracticeGame(levelKey) {
+            isExamMode = false;
+            currentLevelKey = levelKey;
+            
+            const pool = [...coffeeDatabase[currentModuleKey].levels[levelKey]];
+            shuffleArray(pool);
+            
+            activeQuizLength = Math.min(10, pool.length);
+            currentQuestions = pool.slice(0, activeQuizLength);
+            
+            currentQIndex = 0;
+            score = 0;
+
+            ui.badgeModule.textContent = coffeeDatabase[currentModuleKey].title;
+            ui.badgeLevel.textContent = levelKey.charAt(0).toUpperCase() + levelKey.slice(1);
+            ui.badgeTimer.classList.add('hidden'); // Hide timer for practice
+
+            hideAllScreens();
+            screens.game.classList.remove('hidden');
+            loadQuestion();
+        }
+
+        // Mode 2: Exam Simulator Flow
+        function startExamMode() {
+            isExamMode = true;
+            
+            let foundation = [];
+            let intermediate = [];
+            let professional = [];
+            
+            // Gather all questions
+            for (const mod in coffeeDatabase) {
+                foundation.push(...coffeeDatabase[mod].levels.foundation);
+                intermediate.push(...coffeeDatabase[mod].levels.intermediate);
+                professional.push(...coffeeDatabase[mod].levels.professional);
+            }
+            
+            // Shuffle them
+            shuffleArray(foundation);
+            shuffleArray(intermediate);
+            shuffleArray(professional);
+            
+            // Take 20 from each to create the ramped 60 question exam
+            currentQuestions = [
+                ...foundation.slice(0, 20),
+                ...intermediate.slice(0, 20),
+                ...professional.slice(0, 20)
+            ];
+            
+            activeQuizLength = currentQuestions.length; // Should be 60
+            currentQIndex = 0;
+            score = 0;
+
+            ui.badgeModule.textContent = "SCA Exam Simulator";
+            ui.badgeLevel.textContent = "Foundation Phase"; // Starts here
+
+            hideAllScreens();
+            screens.game.classList.remove('hidden');
+            
+            startTimer();
+            loadQuestion();
+        }
+
+        function restartCurrentMode() {
+            if (isExamMode) {
+                startExamMode();
+            } else {
+                startPracticeGame(currentLevelKey);
+            }
+        }
+
+        // Universal Gameplay Flow
+        function loadQuestion() {
+            answered = false;
+            ui.nextBtn.classList.add('hidden');
+            
+            const qData = currentQuestions[currentQIndex];
+            ui.questionText.textContent = qData.q;
+            ui.status.textContent = `Q: ${currentQIndex + 1} / ${activeQuizLength} | Score: ${score}`;
+
+            // If Exam mode, dynamically update the level badge based on progression
+            if (isExamMode) {
+                if (currentQIndex < 20) ui.badgeLevel.textContent = "Foundation Phase";
+                else if (currentQIndex < 40) ui.badgeLevel.textContent = "Intermediate Phase";
+                else ui.badgeLevel.textContent = "Professional Phase";
+            }
+
+            // Reset and populate buttons
+            ['a', 'b', 'c', 'd'].forEach(key => {
+                const btn = ui.options[key].btn;
+                btn.className = 'option-btn'; 
+                btn.disabled = false;
+                ui.options[key].text.textContent = qData.options[key];
+            });
+        }
+
+        function checkAnswer(selectedKey) {
+            if (answered) return;
+            answered = true;
+
+            const qData = currentQuestions[currentQIndex];
+            const correctKey = qData.answer;
+
+            // Show correct/wrong
+            ['a', 'b', 'c', 'd'].forEach(key => {
+                const btn = ui.options[key].btn;
+                btn.disabled = true;
+                
+                if (key === correctKey) {
+                    btn.classList.add('correct');
+                } else if (key === selectedKey && selectedKey !== correctKey) {
+                    btn.classList.add('wrong');
+                }
+            });
+
+            if (selectedKey === correctKey) {
+                score++;
+            }
+
+            ui.status.textContent = `Q: ${currentQIndex + 1} / ${activeQuizLength} | Score: ${score}`;
+            
+            // Change button text if it's the last question
+            if (currentQIndex === activeQuizLength - 1) {
+                ui.nextBtn.textContent = "Finish Quiz ➔";
+            } else {
+                ui.nextBtn.textContent = "Next Question ➔";
+            }
+            
+            ui.nextBtn.classList.remove('hidden');
+        }
+
+        function nextQuestion() {
+            currentQIndex++;
+            if (currentQIndex >= currentQuestions.length) {
+                showVictory(false);
+            } else {
+                loadQuestion();
+            }
+        }
+
+function showVictory(timeRanOut) {
+            hideAllScreens();
+            screens.victory.classList.remove('hidden');
+            
+            // Calculate percentage and letter grade
+            const percentage = Math.round((score / activeQuizLength) * 100);
+            let letterGrade = 'F ❌ (Fail)';
+            if (percentage >= 90) letterGrade = 'A 🏆 (Pass)';
+            else if (percentage >= 80) letterGrade = 'B 🥈 (Pass)';
+            else if (percentage >= 70) letterGrade = 'C 🥉 (Pass)';
+            else if (percentage >= 60) letterGrade = 'D ⚠️ (Fail)';
+            
+            // Format score display based on mode
+            if (isExamMode) {
+                // Injects the percentage and grade on a new line below the raw score
+                ui.finalScore.innerHTML = `${score} / ${activeQuizLength}<br><span style="font-size: 1.5rem; color: var(--accent);">${percentage}% | Grade: ${letterGrade}</span>`;
+            } else {
+                // Keeps the simple display for standard practice mode
+                ui.finalScore.textContent = `${score} / ${activeQuizLength}`;
+            }
+            
+            if (timeRanOut) {
+                ui.victoryTitle.textContent = "Time's Up! ⏰";
+                ui.victoryMessage.textContent = "You ran out of time. Here is your final score:";
+            } else {
+                ui.victoryTitle.textContent = isExamMode ? "Exam Complete! 🎓" : "Quiz Complete! 🎉";
+                
+                // Show time taken for exam mode
+                if (isExamMode) {
+                    const timeTaken = 1800 - timeRemaining;
+                    const mins = Math.floor(timeTaken / 60);
+                    const secs = timeTaken % 60;
+                    ui.victoryMessage.textContent = `Time taken: ${mins}m ${secs}s. Your Final Score:`;
+                } else {
+                    ui.victoryMessage.textContent = "Your Final Score:";
+                }
+            }
+
+            // Build dynamic buttons based on mode
+            ui.victoryControls.innerHTML = ''; // clear old buttons
+            
+            const replayBtn = document.createElement('button');
+            replayBtn.className = 'menu-btn';
+            replayBtn.textContent = 'Play Again (New Questions) 🔄';
+            replayBtn.onclick = restartCurrentMode;
+            ui.victoryControls.appendChild(replayBtn);
+
+            if (!isExamMode) {
+                const changeLevelBtn = document.createElement('button');
+                changeLevelBtn.className = 'menu-btn';
+                changeLevelBtn.textContent = 'Change Level 📊';
+                changeLevelBtn.onclick = showLevelMenu;
+                ui.victoryControls.appendChild(changeLevelBtn);
+            }
+
+            const homeBtn = document.createElement('button');
+            homeBtn.className = 'nav-btn';
+            homeBtn.textContent = 'Back to Main Menu 🏠';
+            homeBtn.onclick = showModeMenu;
+            ui.victoryControls.appendChild(homeBtn);
+        }
+
+    </script>
+</body>
+</html>
